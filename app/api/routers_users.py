@@ -3,6 +3,8 @@ from app.schemas.user import UserCreate, UserRead, PaginatedUsers
 from app.models.user import User, Role
 from app.core.security import get_current_user, require_admin
 from app.services.user_service import create_user, get_user_by_id, list_users
+from app.core.security import verify_password, get_password_hash
+
 
 router = APIRouter()
 
@@ -37,3 +39,12 @@ async def get_users(
     users, total = await list_users(page=page, limit=limit, max_limit=100)
     data = [UserRead(id=u.id, name=u.name, email=u.email, role=u.role) for u in users]
     return PaginatedUsers(data=data, page=page, limit=limit, total=total)
+
+# For Change User Password
+@router.post("/users/change-password")
+async def change_password(old_password: str, new_password: str, current: User = Depends(get_current_user)):
+    if not verify_password(old_password, current.password_hash):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Old password incorrect")
+    current.password_hash = get_password_hash(new_password)
+    await current.save()
+    return {"message": "Password updated successfully"}
