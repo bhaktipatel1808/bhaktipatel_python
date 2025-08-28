@@ -20,3 +20,9 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
+
+class PaginatedUsers(BaseModel):
+    data: list[UserRead]
+    page: int
+    limit: int
+    total: int

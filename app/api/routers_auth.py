@@ -6,7 +6,7 @@ from services.user_service import get_user_by_email, create_user
 router = APIRouter(tags=["auth"])
 
 # For User Register
-@router.post("/users", response_model=UserCreate, status_code=status.HTTP_201_CREATED)
+@router.post("/users", response_model=UserCreate, status_code=status.HTTP_201_CREATED,tags="Register")
 async def register(payload: UserCreate):
     existing = await get_user_by_email(payload.email)
     if existing:
@@ -18,7 +18,7 @@ async def register(payload: UserCreate):
     return UserCreate(id=str(user.id), name=user.name, email=user.email, role=user.role)
 
 # User Login
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=Token,tags="Login")
 async def login(payload: UserLogin):
     user = await get_user_by_email(payload.email)
     if not user or not verify_password(payload.password, user.password_hash):
